@@ -1,6 +1,7 @@
 package com.myorg;
 
 import software.amazon.awscdk.Duration;
+import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
@@ -55,10 +56,17 @@ public class AwsCdkImageLabellingStack extends Stack {
             .code(Code.fromAsset("assets/ImageLabelLambda.jar"))
             .build();
 
+        ApplyDestroyRemovalPolicyOnBuckets(unlabelledImagesBucket, labelledImagesBucket);
+
         GrantReadAccessToUnlabelledBucket(unlabelledImagesBucket, imageLabelLambda);
         GrantPutAccessToLabelledBucket(labelledImagesBucket, imageLabelLambda);
         GrantLambdaAccessToRekognition(imageLabelLambda);
         CreateSqsObjectCreatedNotification(unlabelledImagesQueue, imageLabelLambda, unlabelledImagesBucket);
+    }
+
+    private static void ApplyDestroyRemovalPolicyOnBuckets(Bucket unlabelledImagesBucket, Bucket labelledImagesBucket) {
+        unlabelledImagesBucket.applyRemovalPolicy(RemovalPolicy.DESTROY);
+        labelledImagesBucket.applyRemovalPolicy(RemovalPolicy.DESTROY);
     }
 
     private static void GrantPutAccessToLabelledBucket(Bucket labelledImagesBucket, Function imageLabelLambda) {

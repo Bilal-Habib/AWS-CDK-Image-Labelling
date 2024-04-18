@@ -118,13 +118,6 @@ public class ImageLabelLambda implements RequestHandler<SQSEvent, String> {
     }
 
     private void uploadToS3(String key, InputStream inputStream) {
-//        ObjectMetadata metadata = new ObjectMetadata();
-//        metadata.setContentType("image/jpeg");
-//
-//        PutObjectRequest putRequest = new PutObjectRequest("lambdacodebucket767676", key, inputStream, metadata);
-//        s3Client.putObject(putRequest);
-
-
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[1024];
             int len;
