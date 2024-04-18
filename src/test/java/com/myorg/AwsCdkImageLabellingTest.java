@@ -24,10 +24,11 @@
          ));
 
          template.hasResourceProperties("AWS::SQS::Queue", Map.of(
-             "QueueName", "QueueForUnlabelledImages"
+             "QueueName", "QueueForOriginalImages"
          ));
 
          template.hasResourceProperties("AWS::Lambda::Function", Map.of(
+             "FunctionName", "LambdaForLabellingImages",
              "Handler", "com.myorg.functions.ImageLabelLambda::handleRequest",
              "Runtime", Runtime.JAVA_17.getName()
          ));
