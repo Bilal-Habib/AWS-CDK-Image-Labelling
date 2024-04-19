@@ -46,7 +46,7 @@ public class AwsCdkImageLabellingStack extends Stack {
             .create(this, QUEUE_NAME)
             .queueName(QUEUE_NAME)
             .visibilityTimeout(Duration.seconds(80))
-            .retentionPeriod(Duration.seconds(30))
+            .retentionPeriod(Duration.minutes(1))
             .build();
 
         final var imageLabelLambda = Function.Builder
