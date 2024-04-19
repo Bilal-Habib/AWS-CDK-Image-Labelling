@@ -10,6 +10,7 @@ import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.lambda.eventsources.SqsEventSource;
+import software.amazon.awscdk.services.lambda.eventsources.SqsEventSourceProps;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.EventType;
 import software.amazon.awscdk.services.s3.notifications.SqsDestination;
@@ -44,6 +45,8 @@ public class AwsCdkImageLabellingStack extends Stack {
         final var originalImagesQueue = Queue.Builder
             .create(this, QUEUE_NAME)
             .queueName(QUEUE_NAME)
+            .visibilityTimeout(Duration.seconds(80))
+            .retentionPeriod(Duration.seconds(30))
             .build();
 
         final var imageLabelLambda = Function.Builder
@@ -82,8 +85,10 @@ public class AwsCdkImageLabellingStack extends Stack {
         originalImagesQueue.grantConsumeMessages(imageLabelLambda);
         imageLabelLambda.getRole().addManagedPolicy(ManagedPolicy.fromManagedPolicyArn(
             this, "lambdasqspolicy", "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"));
-        imageLabelLambda.addEventSource(new SqsEventSource(originalImagesQueue));
 
+        imageLabelLambda.addEventSource(new SqsEventSource(originalImagesQueue, SqsEventSourceProps.builder()
+            .batchSize(1)
+            .build()));
         originalImagesBucket.addEventNotification(
             EventType.OBJECT_CREATED,
             new SqsDestination(originalImagesQueue));
